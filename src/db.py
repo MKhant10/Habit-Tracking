@@ -18,3 +18,4 @@ cnt = execute('''
                   ID INTEGER PRIMARY KEY AUTOINCREMENT,
                   HABIT_ID INTEGER FOREIGN KEY REFERENCES habit(ID),
                   COMPLETED_AT DATE);''')
+
