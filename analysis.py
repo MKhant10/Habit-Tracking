@@ -40,3 +40,12 @@ class Analysis:
         print(f"Habits to do in {periodicity}: ")
         for row in results:
             print(f"- {row[0]}")
+            
+    def broken_habits(self):
+        query = """
+        SELECT HABIT_NAME FROM habit WHERE ONGOING = 0;"""
+        self.cursor.execute(query)
+        results = self.cursor.fetchall()
+        print("Broken Habits: ")
+        for row in results:
+            print(f"- {row[0]}")

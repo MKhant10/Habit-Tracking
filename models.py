@@ -5,22 +5,28 @@ import os
 from pathlib import Path
 
 class Habit():
-    # def __init__(self, db):
-    #     self.db = db
+    def __init__(self, db):
+        self.db = db
+        self.cursor = db.cursor()
     
-    # def check_off(self):
-    #     habit_name = input("Enter Habit Name to check off: ").strip()
-    #     query = """
-    #     UPDATE habit SET STREAK_COUNT = STREAK_COUNT + 1, UPDATEDDATE = ? WHERE NAME = ?;"""
-    #     all_habits = self.db.execute("SELECT NAME FROM habit;").fetchall()
-    #     if check_habit_exist(all_habits, habit_name):
-    #         updated_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #         self.db.execute(query, (updated_date, habit_name))
-    #         print(f"Habit '{habit_name}' checked off successfully.")
-    #     else:
-    #         print(f"Habit '{habit_name}' does not exist.")
             
-            
+    def check_off(self):
+        habit_name = input("Enter Habit Name to check off: ").strip().lower()
+        query_1 = """
+        UPDATE habit SET STREAK_COUNT = STREAK_COUNT + 1, UPDATEDDATE = ? WHERE HABIT_NAME = ?;
+        """
+        query_2 = """
+        INSERT INTO completion (HABIT_ID, COMPLETED_AT) VALUES ((SELECT ID FROM habit WHERE HABIT_NAME = ?), ?);
+        """
+        if check_habit_exist(self.cursor, habit_name):
+            updated_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.cursor.execute(query_1, (updated_date, habit_name))
+            self.cursor.execute(query_2, (habit_name, updated_date))
+            self.db.commit()
+            print(f"Habit '{habit_name}' checked off successfully.")
+        else:
+            print(f"Habit '{habit_name}' does not exist.")
+
     def completion_dates():
         pass
     
@@ -152,20 +158,5 @@ class HabitManager():
         else:
             print("Operation cancelled.")
             
-    def check_off(self):
-        habit_name = input("Enter Habit Name to check off: ").strip().lower()
-        query_1 = """
-        UPDATE habit SET STREAK_COUNT = STREAK_COUNT + 1, UPDATEDDATE = ? WHERE HABIT_NAME = ?;
-        """
-        query_2 = """
-        INSERT INTO completion (HABIT_ID, COMPLETED_AT) VALUES ((SELECT ID FROM habit WHERE HABIT_NAME = ?), ?);
-        """
-        if check_habit_exist(self.cursor, habit_name):
-            updated_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.cursor.execute(query_1, (updated_date, habit_name))
-            self.cursor.execute(query_2, (habit_name, updated_date))
-            self.db.commit()
-            print(f"Habit '{habit_name}' checked off successfully.")
-        else:
-            print(f"Habit '{habit_name}' does not exist.")
+    
             
