@@ -10,6 +10,8 @@ class HabitCLI:
     def __init__(self, db_path="db/habit.db", seed=True):
         self.db_path = db_path
         self.con = sqlite3.connect(self.db_path)
+        # Enforce foreign key constraints
+        self.con.execute("PRAGMA foreign_keys = ON;")
         self.cur = self.con.cursor()
         create_tables(self.cur)
 
