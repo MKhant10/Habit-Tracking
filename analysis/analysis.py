@@ -106,16 +106,19 @@ class Analysis:
                 return
             if len(best_habits) == 1:
                 habit_name, periodicity = best_habits[0]
+                label = period_label(periodicity, best_streak)
                 print(
-                    f"Longest streak overall: Habit '{habit_name}' with a streak of {best_streak}"
+                    f"\nLongest streak overall: Habit '{habit_name}' with a streak of {best_streak} {label}"
                 )
                 return
-            print(f"Longest streak overall: {best_streak} periods.")
+            print(f"\nLongest streak overall: {best_streak} periods.")
             for habit_name, periodicity in best_habits:
-                print(f"- {habit_name} ({periodicity})")
+                label = period_label(periodicity, best_streak)
+                print(f"\n- {habit_name} ({periodicity}): {best_streak} {label}")
 
     # Calculate longest streak by Habit
     def longest_streak_by_habit(self):
+        display_habits(self.db)
         habit_name = input("Enter Habit Name to check longest streak: ").strip().lower()
         if not habit_name:
             print("Habit name is required.")
@@ -133,7 +136,8 @@ class Analysis:
         if streak == 0:
             print(f"Habit '{habit_name}' has no completions yet.")
             return
-        print(f"Longest streak for Habit '{habit_name}': {streak}.")
+        label = period_label(periodicity, streak)
+        print(f"\nLongest streak for Habit '{habit_name}': {streak} {label}.")
 
     # List by periodicity
     def list_by_periodicity(self):
@@ -145,7 +149,7 @@ class Analysis:
         query = """
         SELECT HABIT_NAME FROM habit WHERE PERIODICITY = ?;"""
         habits = self.cursor.execute(query, (periodicity,)).fetchall()
-        print(f"Habits to do in {periodicity}: ")
+        print(f"\nHabits to do in {periodicity}: ")
         for habit in habits:
             print(f"- {habit[0]}")
 
@@ -166,7 +170,7 @@ class Analysis:
         if not broken:
             print("No broken habits found.")
             return
-        print("Broken Habits: ")
+        print("\nBroken Habits: ")
         for habit_name in broken:
             print(f"- {habit_name}")
 
@@ -196,7 +200,7 @@ class Analysis:
         if not habits:
             print("No habits found.")
             return
-        print("\nHabits needs to be done in current period:")
+        print("\nHabits completed in current period:")
         for habit_id, habit_name, periodicity in habits:
             completed = self._completed_habits(habit_id, periodicity, now)
             if completed:

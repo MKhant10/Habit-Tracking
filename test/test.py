@@ -5,7 +5,8 @@ import pytest
 
 from analysis.analysis import Analysis
 from db.db import create_tables
-from models.models import HabitManager, Habit
+from models.habits import Habit
+from models.habit_manager import HabitManager
 
 DATETIME_FMT = "%Y-%m-%d %H:%M:%S"
 

@@ -66,3 +66,11 @@ def period_step(periodicity):
         return timedelta(days=7)
     else:
         raise ValueError("Invalid periodicity. Must be 'daily' or 'weekly'.")
+    
+# Get the label for the period based on periodicity
+def period_label(periodicity, count):
+    if periodicity == "daily":
+        return "day" if count == 1 else "days"
+    if periodicity == "weekly":
+        return "week" if count == 1 else "weeks"
+    return "period" if count == 1 else "periods"

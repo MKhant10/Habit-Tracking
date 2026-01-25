@@ -1,5 +1,6 @@
 import atexit
-from models.models import HabitManager, Habit
+from models.habits import Habit
+from models.habit_manager import HabitManager
 import sqlite3
 from db.db import create_tables
 from analysis.analysis import Analysis
@@ -43,6 +44,14 @@ class HabitCLI:
 
     def list_habit(self):
         self.manager.list_habits()
+        
+    def check_off(self):
+        self.habit.check_off()
+        
+    def summary(self):
+        self.analysis.longest_streak_overall()
+        self.analysis.list_completed_habits()
+        self.analysis.broken_habits()
 
     def run(self):
         initiate = True
@@ -77,7 +86,7 @@ class HabitCLI:
                                 case "1":
                                     self.manager.add_habit()
                                 case "2":
-                                    self.manager.update_habit_name()
+                                    self.manager.update_habit()
                                 case "3":
                                     self.manager.delete_habit()
                                 case "4":
