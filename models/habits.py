@@ -14,6 +14,12 @@ class Habit:
         self.cursor = db.cursor()
 
     def check_off(self):
+        """
+        Check off the habit as completed in the current period.
+        Add 1 to the streak_count and update the updateddate as current datetime.
+        Log habit id and completed datetime into the completion table.
+        If the habit is already check off, data are not added to the completion table.
+        """
         habit_name = input("Enter Habit Name to check off: ").strip().lower()
         if check_habit_exist(self.cursor, habit_name):
             habit = self.cursor.execute(
@@ -56,6 +62,15 @@ class Habit:
             raise ValueError(f"Habit '{habit_name}' does not exist.")
 
     def _refresh_streak_if_broken(self, habit_id, now):
+        """
+        Determine the streak of the habit that hasn't complete consecutive days or weeks.
+        
+        params:
+            habit_id: ID of habit
+            now: current datetime
+        return:
+            bool
+        """
         if now is None:
             now = datetime.now()
 
@@ -93,6 +108,11 @@ class Habit:
         return False
 
     def refresh_all_habits(self):
+        """
+        Refresh all habits to check if it is broken or not.
+        If there is no habit completion, streak_count change back to zero.
+        
+        """
         habit_ids = self.cursor.execute("""SELECT HABIT_ID FROM habit;""").fetchall()
         for habit_id in habit_ids:
             self._refresh_streak_if_broken(habit_id[0], None)

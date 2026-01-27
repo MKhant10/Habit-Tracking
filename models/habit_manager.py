@@ -5,10 +5,17 @@ import os
 from pathlib import Path
 
 class HabitManager:
+    """
+    HabitManager Class
+    
+    params:
+        db: sqlite db connection
+    """
     def __init__(self, db):
         self.db = db
         self.cursor = db.cursor()
 
+    # seed the predefined habits into the database
     def seed(self):
         existing = self.cursor.execute("SELECT COUNT(1) FROM habit;").fetchone()[0]
         if existing > 0:
@@ -46,6 +53,11 @@ class HabitManager:
         print(f"\nSeeded {len(habits)} habits successfully.")
 
     def add_habit(self):
+        """
+        Create a new habit into the database.
+        User add a new habit name and periodicity.
+        
+        """
         habit_data = dict()
 
         habit_data["name"] = input("Enter Habit Name: ").strip().lower()
@@ -67,6 +79,10 @@ class HabitManager:
             print(f"Error adding habit to database: {e}")
 
     def update_habit(self):
+        """
+        Edit the existing habit by name and periodicity
+        
+        """
         display_habits(self.db)
         habit_name = input("Enter the name of the habit to update: ").strip().lower()
         if check_habit_exist(self.cursor, habit_name):
@@ -91,6 +107,9 @@ class HabitManager:
             print(f"Habit '{habit_name}' does not exist.")
 
     def delete_habit(self):
+        """
+        Delete the existing habit
+        """
         display_habits(self.db)
         habit_name = input("Enter Habit Name to delete: ").strip().lower()
         if check_habit_exist(self.cursor, habit_name):
@@ -103,6 +122,9 @@ class HabitManager:
             print(f"Habit '{habit_name}' does not exist.")
 
     def get_habit(self):
+        """
+        Retrieve the existing habit
+        """
         display_habits(self.db)
         habit_name = input("Enter Habit Name to search: ").strip().lower()
         if check_habit_exist(self.cursor, habit_name):
@@ -116,6 +138,9 @@ class HabitManager:
             print(f"Habit '{habit_name}' does not exist.")
 
     def list_habits(self):
+        """
+        List all the existing habit
+        """
         habits = self.cursor.execute(
             """SELECT HABIT_NAME, PERIODICITY FROM habit"""
         ).fetchall()
@@ -124,6 +149,9 @@ class HabitManager:
             print(f"{idx}. {habit[0]} ({habit[1]})")
 
     def delete_all_habits(self):
+        """
+        Delete all the existing habits
+        """
         confirm = (
             input("Are you sure you want to delete all habits? (yes/no): ")
             .strip()

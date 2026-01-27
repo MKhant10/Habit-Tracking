@@ -14,13 +14,13 @@ DATETIME_FMT = "%Y-%m-%d %H:%M:%S"
 def format_dt(dt_value):
     return dt_value.strftime(DATETIME_FMT)
 
-
+# build database in the temporary memory
 def make_db():
     con = sqlite3.connect(":memory:")
     create_tables(con.cursor())
     return con
 
-
+# insert a habit into the database
 def insert_habit(
     con,
     habit_name,
@@ -50,7 +50,7 @@ def insert_habit(
     con.commit()
     return cur.lastrowid
 
-
+# insert data in the completion table
 def insert_completion(con, habit_id, completed_at):
     con.execute(
         """
@@ -60,7 +60,7 @@ def insert_completion(con, habit_id, completed_at):
     )
     con.commit()
 
-
+# set user_input via monkeypatch
 def set_inputs(monkeypatch, values):
     iterator = iter(values)
     monkeypatch.setattr("builtins.input", lambda *args: next(iterator))
@@ -87,7 +87,7 @@ def manager(db):
 def analysis(db):
     return Analysis(db=db)
 
-
+# Test check_off
 def test_check_off(habit, db, monkeypatch, capsys):
     insert_habit(db, "walk", periodicity="daily", streak_count=0)
     set_inputs(monkeypatch, ["walk"])
@@ -99,7 +99,7 @@ def test_check_off(habit, db, monkeypatch, capsys):
     assert row[0] == 1
     assert "Checked off habit 'walk' successfully." in output
 
-
+# Test refresh_all_habits
 def test_refresh_all_habits(habit, db, capsys):
     habit_id = insert_habit(db, "walk", periodicity="daily", streak_count=2)
     now = datetime.now()
@@ -115,7 +115,7 @@ def test_refresh_all_habits(habit, db, capsys):
     assert row[0] == 0
     assert "Database Refresh" in output
 
-
+# Test add_habit
 def test_add_habit_insert_row(manager, db, monkeypatch, capsys):
     set_inputs(monkeypatch, ["Walk", "daily"])
     manager.add_habit()
@@ -127,7 +127,7 @@ def test_add_habit_insert_row(manager, db, monkeypatch, capsys):
     assert row[1] == "daily"
     assert "Habit 'walk' added successfully." in output
 
-
+# Test update_habit
 def test_update_habit_edit_row(manager, db, monkeypatch, capsys):
     insert_habit(db, "walk", periodicity="daily")
     set_inputs(monkeypatch, ["Walk", "Run", "weekly"])
@@ -140,7 +140,7 @@ def test_update_habit_edit_row(manager, db, monkeypatch, capsys):
         in output
     )
 
-
+# Test delete_habit
 def test_delete_habit(manager, db, monkeypatch, capsys):
     insert_habit(db, "walk", periodicity="daily")
     set_inputs(monkeypatch, ["walk"])
@@ -152,7 +152,7 @@ def test_delete_habit(manager, db, monkeypatch, capsys):
     assert row is None
     assert "Habit 'walk' is deleted successfully." in output
 
-
+# Test get_habit
 def test_get_habit(manager, db, monkeypatch, capsys):
     insert_habit(db, "walk", periodicity="daily")
     set_inputs(monkeypatch, ["walk"])
@@ -164,7 +164,7 @@ def test_get_habit(manager, db, monkeypatch, capsys):
     assert row[0] == "walk"
     assert "Habit found: Walk | Periodicity: daily |" in output
 
-
+# Test list_habits
 def test_list_habits(manager, db, capsys):
     insert_habit(db, "walk", periodicity="daily")
     insert_habit(db, "read", periodicity="weekly")
@@ -173,7 +173,7 @@ def test_list_habits(manager, db, capsys):
     assert "walk (daily)" in output
     assert "read (weekly)" in output
 
-
+# Test delete_all_habits
 def test_delete_all_habits(manager, db, monkeypatch, capsys):
     insert_habit(db, "walk", periodicity="daily")
     insert_habit(db, "read", periodicity="weekly")
@@ -199,7 +199,7 @@ def test_longest_streak_overall_by_weekly(analysis, db, capsys):
     assert "weekly-habit" in output
     assert "3" in output
 
-
+# Longest streak by habit using daily periodicity
 def test_longest_streak_by_habit_daily(analysis, db, monkeypatch, capsys):
     habit_id = insert_habit(db, "read", periodicity="daily")
     now = datetime.now()
@@ -210,7 +210,7 @@ def test_longest_streak_by_habit_daily(analysis, db, monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "Longest streak for Habit 'read': 2" in output
 
-
+# List by periodicity
 def test_list_by_periodicity_filters(analysis, db, monkeypatch, capsys):
     insert_habit(db, "walk", periodicity="daily")
     insert_habit(db, "read", periodicity="weekly")
@@ -220,7 +220,7 @@ def test_list_by_periodicity_filters(analysis, db, monkeypatch, capsys):
     assert "walk" in output
     assert "read" not in output
 
-
+# Broken habits
 def test_broken_habits_detects_gap(analysis, db, capsys):
     habit_id = insert_habit(db, "walk", periodicity="daily")
     now = datetime.now()

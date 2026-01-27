@@ -2,12 +2,29 @@ from datetime import datetime
 from helper.common import *
 
 class Analysis:
+    """
+    Analysis Class
+    
+    params:
+        db: sqlite db connection
+    """
     def __init__(self, db):
         self.db = db
         self.cursor = db.cursor()
 
     # Get completed habits in the current period
     def _completed_habits(self, habit_id, periodicity, now):
+        """
+        _completed_habits
+        
+        params:
+            habit_id: ID of habit
+            periodicity: daily/ weekly
+            now : current time
+        
+        returns:
+            list of completed habits in the current period
+        """
         start_date = get_period_start(now, periodicity)
         end_date = get_period_end(start_date, periodicity)
 
@@ -21,6 +38,16 @@ class Analysis:
 
     # Get all unique completions periods for a habit based on periodicity
     def _get_completion_periods(self, habit_id, periodicity):
+        """
+        _get_completion_periods
+        
+        params:
+            habit_id: ID of habit
+            periodicity: daily/ weekly
+            
+        return:
+            set of completed datetime that habit has completed
+        """
         step = period_step(periodicity)
         if step is None:
             return []
@@ -38,6 +65,15 @@ class Analysis:
 
     # Calculate the longest streak from a list of period starts
     def _longest_streak_from_periods(self, period_starts, periodicity):
+        """longest streak count from period
+
+        params:
+            period_starts: start datetime of the period
+            periodicity: daily/weekly
+        
+        return:
+            longest streak count during the period
+        """
         step = period_step(periodicity)
         if not period_starts or step is None:
             return 0
@@ -56,6 +92,15 @@ class Analysis:
 
     # Check if there is a gap in the streak
     def _has_streak_gap(self, period_starts, periodicity):
+        """Check if there a gap between the completed period
+
+        params:
+            period_starts: start datetime of the period
+            periodicity: daily/weekly
+            
+        return:
+            True if there is a gap else False
+        """
         step = period_step(periodicity)
         if step is None or len(period_starts) <= 1:
             return False
@@ -68,6 +113,17 @@ class Analysis:
 
     # Determine if a habit is broken based on its periodicity and completion history=
     def _is_broken(self, periodicity, created_at, period_starts):
+        """
+        Determine if a habit is broken.
+        
+        params:
+            periodicity: daily/weekly
+            created_at: datetime of habit created
+            period_starts: start datetime of the period
+            
+        return:
+            True if the habit is broken
+        """
         step = period_step(periodicity)
         if step is None:
             return False
@@ -84,6 +140,12 @@ class Analysis:
 
     # Calculate longest streak overall
     def longest_streak_overall(self):
+        """
+        Calculate the longest streak overall of the habit created.
+        
+        return:
+            Count of the longest streak among the habit
+        """
         query = """
         SELECT HABIT_ID, HABIT_NAME, PERIODICITY FROM habit;"""
         habits = self.cursor.execute(query).fetchall()
@@ -118,6 +180,12 @@ class Analysis:
 
     # Calculate longest streak by Habit
     def longest_streak_by_habit(self):
+        """
+        Calculate the longest streak by a habit that user chose.
+        
+        return:
+            Streak count of the habit.
+        """
         display_habits(self.db)
         habit_name = input("Enter Habit Name to check longest streak: ").strip().lower()
         if not habit_name:
@@ -141,6 +209,12 @@ class Analysis:
 
     # List by periodicity
     def list_by_periodicity(self):
+        """
+        List of habit by periodicity: daily or weekly
+        
+        return:
+            list of habits
+        """
         periodicity = input("Enter periodicity (daily/weekly): ").strip().lower()
         while periodicity not in ["daily", "weekly"]:
             print("Invalid periodicity. Please enter 'daily' or 'weekly'.")
@@ -155,6 +229,12 @@ class Analysis:
 
     # Identify Broken Habits
     def broken_habits(self):
+        """
+        Identify the broken habit
+        
+        return:
+            List of broken habits
+        """
         query = """
         SELECT HABIT_ID, HABIT_NAME, PERIODICITY, CREATEDDATE FROM habit;"""
         habits = self.cursor.execute(query).fetchall()
@@ -175,6 +255,12 @@ class Analysis:
             print(f"- {habit_name}")
 
     def list_incompleted_habits(self):
+        """
+        list of incompleted habits in the current period
+        
+        return:
+            list of incompleted habits
+        """
         now = datetime.now()
         habits = self.db.execute(
             "SELECT HABIT_ID, HABIT_NAME, PERIODICITY FROM habit;"
@@ -192,6 +278,11 @@ class Analysis:
             print("No incompleted Habits")
 
     def list_completed_habits(self):
+        """
+        List of completed habits in the current period.
+        
+        return:
+            list of completed habits"""
         now = datetime.now()
         habits = self.db.execute(
             "SELECT HABIT_ID, HABIT_NAME, PERIODICITY FROM habit;"
